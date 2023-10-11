@@ -743,7 +743,7 @@ get_diar_fraction <- function(d_f, source_df, study, tp = NA){
     # if(("bins" %in% names(d_f)) | ("timepoint" %in% names(d_f) & sum(is.na(d_f[['timepoint']])) == 0)){
     if(!is.na(tp)){
       d_f$diar_co[r] <- source_df[which(source_df$study == study &
-                                          source_df$country == df$country[r] &
+                                          source_df$country == d_f$country[r] &
                                           source_df[[d_f$path1[r]]] > 0 &
                                           source_df[[d_f$path2[r]]] > 0 &
                                           source_df$stool_type == "Diarrhea" &
@@ -752,7 +752,7 @@ get_diar_fraction <- function(d_f, source_df, study, tp = NA){
         nrow()
 
       d_f$co_all[r] <- source_df[which(source_df$study == study &
-                                         source_df$country == df$country[r] &
+                                         source_df$country == d_f$country[r] &
                                          source_df[[d_f$path1[r]]] > 0 &
                                          source_df[[d_f$path2[r]]] > 0 &
                                          source_df[[tp]] == d_f$timepoint[r]),] %>%
@@ -761,7 +761,7 @@ get_diar_fraction <- function(d_f, source_df, study, tp = NA){
 
       # Why are there distinct observations for building these graphs?
       d_f$n_obs[r] <- source_df[which(source_df$study == study &
-                                        source_df$country == df$country[r] &
+                                        source_df$country == d_f$country[r] &
                                         source_df[[tp]] == d_f$timepoint[r]),] %>%
         # distinct(participant) %>%
         nrow()
@@ -772,7 +772,7 @@ get_diar_fraction <- function(d_f, source_df, study, tp = NA){
         d_f$diar_co[r] <- source_df[which(
           source_df[[d_f$path1[r]]] > 0 &
             source_df[[d_f$path2[r]]] > 0 &
-            source_df$country == df$country[r] &
+            source_df$country == d_f$country[r] &
             source_df$stool_type == "Diarrhea" &
             source_df[[tp]] == d_f$timepoint[r]),] %>%
           # distinct(participant) %>%
@@ -781,13 +781,13 @@ get_diar_fraction <- function(d_f, source_df, study, tp = NA){
         d_f$co_all[r] <- source_df[which(
           source_df[[d_f$path1[r]]] > 0 &
             source_df[[d_f$path2[r]]] > 0 &
-            source_df$country == df$country[r] &
+            source_df$country == d_f$country[r] &
             source_df[[tp]] == d_f$timepoint[r]),] %>%
           # distinct(participant) %>%
           nrow()
 
         # Why are there distinct observations for building these graphs?
-        d_f$n_obs[r] <- source_df[which(source_df[[tp]] == d_f$timepoint[r] & source_df$country == df$country[r]),] %>%
+        d_f$n_obs[r] <- source_df[which(source_df[[tp]] == d_f$timepoint[r] & source_df$country == d_f$country[r]),] %>%
           # distinct(participant) %>%
           nrow()
       }
@@ -942,7 +942,7 @@ assign_season <- function(d_f){
 #' }
 
 
-readable_path_names <- function(d_f){
+readable_path_names <- function(d_f, formatted = F){
   #'@title Change pathogen variable names
   #'
   #'@description  Change the pathogen names from the variable names, to more the figure friendly
@@ -951,46 +951,90 @@ readable_path_names <- function(d_f){
   #'@param d_f the dataframe, as the result from the configuration model, usually called within
   #'plotting functions in the package.
   #'
+  #'@param formatted : Boolean, should the names be formatted appropiately for scientific names? The
+  #'default is FALSE, where there is no formatting. Otherwise, must be used in concert with \code{element_markdown()}
+  #'from the \code{ggtext} package.
+  #'
   #'@return dataframe, d_f with only the pathogen names changed.
-  #'
-  #'
-  path_names <- c(
-    "ascaris lumbricoides"          = "A. lumbroides",
-    "aeromonas"                     = "Aeromonas",
-    "ancyclostoma"                  = "Ancyclostoma",
-    "trichuris trichiura"           = "Trichuris",
-    "e.bieneusi"                    = "E. bieneusi",
-    "e.intestinalis"                = "E. intestinalis",
-    "cryptosporidium"               = "Cryptosporidium spp.",
-    "salmonella"                    = "Salmonella",
-    "h.pylori"                      = "H. pylori",
-    "c.jejuni/coli"                 = "C. jejuni/coli",
-    "campy pan"                     = "Campylobacter spp.",
-    "b.fragilis"                    = "B. fragilis",
-    "c.difficile"                   = "C. difficile",
-    "adenovirus f"                  = "Adenovirus 40/41",
-    "norovirus gi"                  = "Norovirus GI",
-    "norovirus gii"                 = "Norovirus GII",
-    "astrovirus"                    = "Astrovirus",
-    "necator"                       = "Necator",
-    "strongyloides"                 = "Strongyloides",
-    "cyclospora"                    = "Cyclospora",
-    "isospora"                      = "Isospora",
-    "e.histolytica"                 = "E. histolytica",
-    "m.tb"                          = "M. tuberculosis",
-    "v.cholerae"                    = "V. cholerae",
-    "shigella & eiec"               = "Shigella spp.",
-    "sapovirus"                     = "Sapovirus",
-    "rotavirus"                     = "Rotavirus",
-    "eaec"                          = "EAEC",
-    "atypical epec"                 = "aEPEC",
-    "typical epec"                  = "tEPEC",
-    "stec"                          = "STEC",
-    "lt_etec"                       = "ETEC lt",
-    "st_etec"                       = "ETEC st",
-    "etec"                          = "ETEC",
-    "epec"                          = "EPEC"
-  )
+
+  if(!formatted){
+    path_names <- c(
+      "ascaris lumbricoides"          = "A. lumbroides",
+      "aeromonas"                     = "Aeromonas",
+      "ancyclostoma"                  = "Ancyclostoma",
+      "trichuris trichiura"           = "Trichuris",
+      "e.bieneusi"                    = "E. bieneusi",
+      "e.intestinalis"                = "E. intestinalis",
+      "cryptosporidium"               = "Cryptosporidium spp.",
+      "salmonella"                    = "Salmonella",
+      "h.pylori"                      = "H. pylori",
+      "c.jejuni/coli"                 = "C. jejuni/coli",
+      "campy pan"                     = "Campylobacter spp.",
+      "b.fragilis"                    = "B. fragilis",
+      "c.difficile"                   = "C. difficile",
+      "adenovirus f"                  = "Adenovirus 40/41",
+      "norovirus gi"                  = "Norovirus GI",
+      "norovirus gii"                 = "Norovirus GII",
+      "astrovirus"                    = "Astrovirus",
+      "necator"                       = "Necator",
+      "strongyloides"                 = "Strongyloides",
+      "cyclospora"                    = "Cyclospora",
+      "isospora"                      = "Isospora",
+      "e.histolytica"                 = "E. histolytica",
+      "m.tb"                          = "M. tuberculosis",
+      "v.cholerae"                    = "V. cholerae",
+      "shigella & eiec"               = "Shigella spp.",
+      "sapovirus"                     = "Sapovirus",
+      "rotavirus"                     = "Rotavirus",
+      "eaec"                          = "EAEC",
+      "atypical epec"                 = "aEPEC",
+      "typical epec"                  = "tEPEC",
+      "stec"                          = "STEC",
+      "lt_etec"                       = "ETEC lt",
+      "st_etec"                       = "ETEC st",
+      "etec"                          = "ETEC",
+      "epec"                          = "EPEC"
+    )
+  }else{
+    path_names <- c(
+      "ascaris lumbricoides"          = "*A. lumbroides*",
+      "aeromonas"                     = "*Aeromonas*",
+      "ancyclostoma"                  = "*Ancyclostoma*",
+      "trichuris trichiura"           = "*Trichuris*",
+      "e.bieneusi"                    = "*E. bieneusi*",
+      "e.intestinalis"                = "*E. intestinalis*",
+      "cryptosporidium"               = "*Cryptosporidium* spp.",
+      "salmonella"                    = "*Salmonella*",
+      "h.pylori"                      = "*H. pylori*",
+      "c.jejuni/coli"                 = "*C. jejuni/coli*",
+      "campy pan"                     = "*Campylobacter* spp.",
+      "b.fragilis"                    = "*B. fragilis*",
+      "c.difficile"                   = "*C. difficile*",
+      "adenovirus f"                  = "Adenovirus 40/41",
+      "norovirus gi"                  = "Norovirus GI",
+      "norovirus gii"                 = "Norovirus GII",
+      "astrovirus"                    = "Astrovirus",
+      "necator"                       = "*Necator*",
+      "strongyloides"                 = "*Strongyloides*",
+      "cyclospora"                    = "*Cyclospora*",
+      "isospora"                      = "*Isospora*",
+      "e.histolytica"                 = "*E. histolytica*",
+      "m.tb"                          = "*M. tuberculosis*",
+      "v.cholerae"                    = "*V. cholerae*",
+      "shigella & eiec"               = "*Shigella* spp.",
+      "sapovirus"                     = "Sapovirus",
+      "rotavirus"                     = "Rotavirus",
+      "eaec"                          = "EAEC",
+      "atypical epec"                 = "aEPEC",
+      "typical epec"                  = "tEPEC",
+      "stec"                          = "STEC",
+      "lt_etec"                       = "ETEC lt",
+      "st_etec"                       = "ETEC st",
+      "etec"                          = "ETEC",
+      "epec"                          = "EPEC"
+    )
+
+  }
 
   final <- d_f %>% mutate(
     path1 = plyr::revalue(path1, path_names, warn_missing = F),

@@ -34,31 +34,6 @@ clean_maled <- function(raw_df){
 }
 
 
-#' convert_maled_binary <- function(df, ignore_cols, method = "simple"){
-#'   #' Convert MAL-ED to binary matrix
-#'   #'
-#'   #' @description Converts the Mal-ed qpcr Data depending if they are below the threhsold value.
-#'   #' Reight now defaults calls binarize_qpcr() using a dplyr transmute_all function.
-#'   #'
-#'   #' @param df: the dataframe of the MAL-ED dataset
-#'   #' @param ignore_cols: columns to ignore for binarisation, these are ID columns such as ID and
-#'   #' age that you do not want to mask.
-#'   #'
-#'   #' @return the MAL-ED dataframe as a binary representation.
-#'   #'
-#'   #' TODO: This should be in the mal-ed only toolbox, since it is only
-#'   #' used for the mal-ed dataset
-#'   ignored_cols <- df[ignore_cols]
-#'   df[ignore_cols] <- NULL
-#'   if(method == "simple"){
-#'     return(cbind(ignored_cols,
-#'                  df %>% transmute_all(binarize_qpcr) %>% transmute_all(binarize_summations)))
-#'   }else if(method == "simple_sum"){
-#'     return(cbind(ignored_cols,
-#'                  df %>% transmute_all(binarize_qpcr)))
-#'   }
-#' }
-
 convert_maled_binary <- function(d_f, ignore_cols, method = "simple"){
   #' Convert MAL-ED to binary matrix
   #'
@@ -129,47 +104,6 @@ reduce_mad_ed <- function(df){
     by = find_intersection_of_terms(df, c("Observation", "Id")))
   return(final)
 }
-
-#'
-#' select_targets_mal_ed <- function(df, parent_dir = "../"){
-#'   #' @title Select target pathogens
-#'   #'
-#'   #' @description Select the target pathogens from the pathogen list provided by Ross
-#'   #' and Dorothy. Selects only the target pathogens provided in the file "Pathogen Lists.xlsx"
-#'   #' provided in the Copathogen folder on the H://
-#'   #'
-#'   #' @param df the dataframe with the larger set of variables.
-#'   #'
-#'   #'@param parent_dir String for the parent directory: defaults to \code{"../data"} which allows the function to be
-#'   #'used in notebooks and scripts. This means the file is in a directory called \code{data}, which is a seperate
-#'   #'directory from where the r notebook is kept. If you are storing in a spperate parent directory, then
-#'   #'enter that in place of the default. If the file is in the same directory, enter \code{""}. If the file is in a
-#'   #'parent directory, enter \code{".."}
-#'   #'
-#'   #'@note This function relies on a CSV file 'pathogen_list_flagged.csv' which contaings names for the general terms,
-#'   #'provide, and mal-ed terms. Theres also a column indicating whether the variable is a pathogen or not. See
-#'   #'\code{\link{get_target_pathogens}}
-#'   #'
-#'   #' @return The dataframe with only target pathogens.
-#'
-#'   # Get the pathogen names
-#'   targets <- get_target_pathogens(parent_dir = parent_dir)
-#'
-#'   # Rename to lowercase
-#'   names(df) <- tolower(names(df))
-#'
-#'   # Get all the names that are not ct names
-#'   id_cols <- df[setdiff(names(df), find_names_matching(names(df), "_ct_value"))]
-#'
-#'   # Find all the names containing ct data
-#'   ct_cols <- df[find_names_matching(names(df), "_ct_value")]
-#'
-#'   # Get the pathogen columns
-#'   targets <- targets %>% filter(ispathogen > 0)
-#'   ct_cols <- ct_cols %>% select(one_of(targets$mal_ed))
-#'   final <- cbind(id_cols, ct_cols)
-#'   return(final)
-#' }
 
 
 select_targets_mal_ed <- function(d_f, parent_dir = "../", vers = "60m"){

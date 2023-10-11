@@ -370,7 +370,7 @@ get_general_terms <- function(parent_dir = "../data/", alt_filename){
   #'and symptomatic PROVIDE datasets.
 
   # Get the original dataset
-  all_names <- read.csv(paste(parent_dir, "provide_pathogen_names.csv", sep = ""), header = T, stringsAsFactors = F)
+  all_names <- read.csv(file.path(parent_dir, "provide_pathogen_names.csv"), header = T, stringsAsFactors = F)
 
   # The asymptomatic name/general name
   asym_names <- all_names[,1:2]
@@ -621,7 +621,7 @@ get_target_pathogens <- function(parent_dir = "../data/"){
   #'      and the mal-ed
 
   # Import the original datafile.
-  pathogen_list <- read.csv(paste(parent_dir, 'dataset_name_conversion.csv', sep = ""),
+  pathogen_list <- read.csv(file.path(parent_dir, 'maled_provide_pathogen_name_key.csv'),
                             # Import Dataset
                             header= T, stringsAsFactors = F) %>%
     # Include flagged Pathogens. See file.

@@ -1,11 +1,10 @@
 Package: copathogenTools
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: Tools for Working with MAL-ED PROVIDE data. 
+Version: 1.0.0
+Author: Connor Klopfer
+Maintainer: Connor Klopfer cklopfer10@aol.com
+Description: This package is for working with the MAL-ED and provide datasets in R. More specifically, to syncronize the two datasets to easily combina and compare infection rates between the two datasets. This is made primarily for internal use. 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
