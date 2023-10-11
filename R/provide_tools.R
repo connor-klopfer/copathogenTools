@@ -69,14 +69,14 @@ import_provide_dataset <- function(parent_dir = "../data/"){
   #'with a variable, "study" to distibguish them
 
   # Import the original data contained within the parent directory passed as the argument
-  file_location <- paste(parent_dir, "TAC asymptomatic subset.csv", sep = "")
+  file_location <- file.path(parent_dir, "TAC asymptomatic subset.csv")
 
   # Asymptomatic Dataset.
-  asymptomatic_raw <- read.csv(paste(parent_dir, "TAC asymptomatic subset.csv", sep = ""),
+  asymptomatic_raw <- read.csv(file.path(parent_dir, "TAC asymptomatic subset.csv"),
                                header = T, sep = ',', stringsAsFactors = F)
 
   # Symptomatic Dataset
-  symptomatic_raw <- read.csv(paste(parent_dir, "TAC diarrheal YR1.csv", sep = "") ,
+  symptomatic_raw <- read.csv(file.path(parent_dir, "TAC diarrheal YR1.csv") ,
                               header = T, sep = ',', stringsAsFactors = F,
   )
 

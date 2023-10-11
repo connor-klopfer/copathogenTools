@@ -176,6 +176,33 @@
 #' }
 
 
+combine_like_pathogens <- function(d_f){
+  #' @title Combine ETEC and EPEC variants
+  #'
+  #' @description After talking with Mami, it was recommended that we combine the etecs
+  #' and rename typical epec as epec.
+  #'
+  #' @return dataframe with those pathogens combined, fewer rows.
+  all_etec <- d_f %>% select(one_of(c("st_etec", "etec", "lt_etec"))) %>% rowSums(.)
+
+  new_etec <- (all_etec > 0) * 1
+
+  final <- cbind(
+    d_f %>% select(-one_of(c("st_etec", "lt_etec", "etec"))),
+    etec = new_etec
+  ) %>%
+    rename(
+      epec = `typical epec`
+    ) %>%
+    select(
+      - `atypical epec`
+    )
+
+  return(final)
+
+}
+
+
 get_both_datasets <- function(method = "simple", parent_dir = "../data/", bangladesh_only = F, specific_stool_type = NA, maled_version = "60m", age_limit = 372){
   #' @title Import MAL-ED and PROVIDE qPCR Data
   #'
@@ -225,7 +252,15 @@ get_both_datasets <- function(method = "simple", parent_dir = "../data/", bangla
 
   # Read in MAL-ED dataset
   if(maled_version == "60m"){
-    mal_ed <- read.csv(paste(parent_dir, "maled_samples_60m_reduced.csv", sep = ""), header = T, stringsAsFactors = F)
+
+    reduced_filename <- "maled_samples_60m_reduced.csv"
+
+    if(!file.exists(file.path(parent_dir,reduced_filename))){
+      warning("Reduced file not found, taking original MAL-ED datafiles and creating reduced file....")
+      reduced_full_maled_dataset(parent_dir)
+
+    }
+    mal_ed <- read.csv(file.path(parent_dir, "maled_samples_60m_reduced.csv"), header = T, stringsAsFactors = F)
     # maled_names <- ogen_name_set$maled_60m
 
     # id_cols <- c("Participant_Id", "Observation_Id", "Observation date [EUPATH_0004991]", "Age (days) [EUPATH_0000579]",
@@ -241,7 +276,7 @@ get_both_datasets <- function(method = "simple", parent_dir = "../data/", bangla
   }else if(maled_version == "24m"){
     message("Warning: even though you chose 24m, using the original release of the dataset. Synergy between these two,
             releases has not been confirmed.")
-    mal_ed <- read.csv(paste(parent_dir, "maled_full_reduced.csv", sep = ""), header = T, stringsAsFactors = F)
+    mal_ed <- read.csv(file.path(parent_dir, "maled_full_reduced.csv"), header = T, stringsAsFactors = F)
 
     id_cols <- get_nonpathogen_cols(names(mal_ed), pathogen_name_set$mal_ed)
   }
